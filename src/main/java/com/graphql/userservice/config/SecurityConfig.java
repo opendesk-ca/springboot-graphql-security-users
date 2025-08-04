@@ -1,6 +1,7 @@
 package com.graphql.userservice.config;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -17,14 +18,20 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
+import static com.graphql.userservice.domain.Constants.*;
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
 @Slf4j
 public class SecurityConfig {
 
+    @Value("${spring.security.oauth2.resourceserver.jwt.issuer-uri}")
+    private String issuerUri;
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        log.info("Invoking the SecurityFilterChain ");
         http.oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwt -> jwt
                                 .decoder(jwtDecoder())
@@ -43,21 +50,22 @@ public class SecurityConfig {
 
     @Bean
     public JwtDecoder jwtDecoder() {
-        String issuerUri = "http://localhost:8180/realms/graphql";
         log.info("Configuring JWT decoder for issuer: {}", issuerUri);
         return JwtDecoders.fromIssuerLocation(issuerUri);
     }
 
     @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
+        log.info("Decoding JWT using jwtAuthenticationConverter ");
+
         JwtAuthenticationConverter converter = new JwtAuthenticationConverter();
         converter.setJwtGrantedAuthoritiesConverter(jwt -> {
             Collection<GrantedAuthority> authorities = new ArrayList<>();
 
             // Extract realm roles
-            Map<String, Object> realmAccess = jwt.getClaimAsMap("realm_access");
-            if (realmAccess != null && realmAccess.containsKey("roles")) {
-                Collection<String> realmRoles = (Collection<String>) realmAccess.get("roles");
+            Map<String, Object> realmAccess = jwt.getClaimAsMap(REALM_ACCESS);
+            if (realmAccess != null && realmAccess.containsKey(ROLES)) {
+                Collection<String> realmRoles = (Collection<String>) realmAccess.get(ROLES);
                 realmRoles.forEach(role -> {
                     authorities.add(new SimpleGrantedAuthority("ROLE_" + role.toUpperCase()));
                     log.debug("Added realm role: ROLE_{}", role.toUpperCase());
@@ -71,9 +79,9 @@ public class SecurityConfig {
                     if (clientAccess instanceof Map) {
                         Map<String, Object> clientAccessMap = (Map<String, Object>) clientAccess;
                         if (clientAccessMap.containsKey("roles")) {
-                            Collection<String> clientRoles = (Collection<String>) clientAccessMap.get("roles");
+                            Collection<String> clientRoles = (Collection<String>) clientAccessMap.get(ROLES);
                             clientRoles.forEach(role -> {
-                                authorities.add(new SimpleGrantedAuthority("ROLE_" + role.toUpperCase()));
+                                authorities.add(new SimpleGrantedAuthority(ROLE_PREFIX + role.toUpperCase()));
                                 log.debug("Added client role from {}: ROLE_{}", clientId, role.toUpperCase());
                             });
                         }

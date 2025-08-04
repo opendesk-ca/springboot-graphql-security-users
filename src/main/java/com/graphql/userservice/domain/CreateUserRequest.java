@@ -1,4 +1,4 @@
-package com.graphql.userservice.service;
+package com.graphql.userservice.domain;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

@@ -1,7 +1,7 @@
 package com.graphql.userservice.controller;
 
-import com.graphql.userservice.service.CreateUserRequest;
-import com.graphql.userservice.service.User;
+import com.graphql.userservice.domain.CreateUserRequest;
+import com.graphql.userservice.domain.User;
 import com.graphql.userservice.service.UserResponse;
 import com.graphql.userservice.service.UserService;
 import jakarta.validation.Valid;

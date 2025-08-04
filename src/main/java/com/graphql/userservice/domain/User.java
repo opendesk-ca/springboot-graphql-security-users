@@ -1,4 +1,4 @@
-package com.graphql.userservice.service;
+package com.graphql.userservice.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

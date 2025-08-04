@@ -1,5 +1,7 @@
 package com.graphql.userservice.service;
 
+import com.graphql.userservice.domain.User;
+
 import java.time.Instant;
 import java.util.Set;
 import java.util.UUID;

@@ -1,5 +1,7 @@
 package com.graphql.userservice.service;
 
+import com.graphql.userservice.domain.CreateUserRequest;
+import com.graphql.userservice.domain.User;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 
