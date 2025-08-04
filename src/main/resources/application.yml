@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: User Service
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8180/realms/graphql
+          jwk-set-uri: http://localhost:8180/realms/graphql/protocol/openid-connect/certs
+
+management:
+  endpoint:
+    health:
+      enabled: true
+  health:
+    cassandra:
+      enabled: false
+  security:
+    enabled: false
+
+logging:
+  level:
+    org.springframework.security: TRACE  # Shows security decision flow
+    org.springframework.web: DEBUG      # Displays incoming requests
+    org.springframework.boot.actuate: DEBUG # Actuator-specific logs
