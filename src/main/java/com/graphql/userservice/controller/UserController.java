@@ -8,7 +8,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,9 +31,29 @@ public class UserController {
                 .body(UserResponse.from(user));
     }
 
-    @GetMapping("/{userId}")
-    @PreAuthorize("hasRole('ADMIN') or hasRole('UMA_AUTHORIZATION') or authentication.name == #userId.toString()")
+    /*@GetMapping("/{userId}")
+    @PreAuthorize("hasRole('ADMIN') or authentication.name == #userId.toString()")
     public ResponseEntity<UserResponse> getUser(@PathVariable UUID userId) {
+        return userService.getUserById(userId)
+                .map(user -> ResponseEntity.ok(UserResponse.from(user)))
+                .orElse(ResponseEntity.notFound().build());
+    }*/
+
+    /** Alternate implementation  **/
+    @GetMapping("/{userId}")
+    public ResponseEntity<UserResponse> getUser(@PathVariable UUID userId, Authentication authentication) {
+
+        // Manual authorization check
+        boolean hasAdminRole = authentication.getAuthorities().stream()
+                .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
+
+        boolean isOwner = authentication.getName().equals(userId.toString());
+
+        if (!hasAdminRole && !isOwner) {
+            throw new AccessDeniedException("Access denied: insufficient privileges");
+        }
+
+        /*return userService.findById(userId);*/
         return userService.getUserById(userId)
                 .map(user -> ResponseEntity.ok(UserResponse.from(user)))
                 .orElse(ResponseEntity.notFound().build());
